@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
+using ShopBot.Models;
+using ShopBot.Services;
 
 namespace ShopBot.Dialogs
 {
     [Serializable]
-    public class ProductDialog : IDialog<MessageBag<string>>
+    public class ProductDialog : IDialog<MessageBag<Product>>
     {
         public async Task StartAsync(IDialogContext context)
         {
@@ -27,7 +30,7 @@ namespace ShopBot.Dialogs
             {
                 case "1":
                     await context.PostAsync("Name of the product you want to order:");
-                    context.Wait(ProductSelectionReceivedAsync);
+                    context.Wait(ProductOptionsReceivedAsync);
                     break;
                 case "2":
                     await context.PostAsync("Name of the product you want to remove:");
@@ -36,10 +39,28 @@ namespace ShopBot.Dialogs
             }
         }
 
-        private async Task ProductSelectionReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        private async Task ProductOptionsReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
             var message = await result;
-            context.Done(MessageBag.Of(message.Text, MessageType.ProductOrder));
+            var products = AzureSearch.CreateClient()
+                .WithIndex(AzureSearch.Products)
+                .Find<Product>(message.Text);
+
+            if (products.Any())
+            {
+                PromptDialog.Choice(context, ProductSelectionReceivedAsync, products, "Add to basket:");   
+            }
+            else
+            {
+                await context.PostAsync("No products found please try with another query.");
+                context.Wait(ProductOptionsReceivedAsync);
+            }
+        }
+
+        private async Task ProductSelectionReceivedAsync(IDialogContext context, IAwaitable<Product> result)
+        {
+            var product = await result;
+            context.Done(MessageBag.Of(product, MessageType.ProductOrder));
         }
 
         private async Task PromptProductRemoval(IDialogContext context, IAwaitable<IMessageActivity> result)

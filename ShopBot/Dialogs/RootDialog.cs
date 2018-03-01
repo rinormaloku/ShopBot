@@ -4,6 +4,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System.Threading;
 using ShopBot.Dialogs;
+using ShopBot.Models;
 
 namespace ShopBot.Dialogs
 {
@@ -47,7 +48,7 @@ namespace ShopBot.Dialogs
                 "Looking for products? Managing your Basket? Or want to checkout?");
         }
 
-        private async Task ResumeAfterProductDialog(IDialogContext context, IAwaitable<MessageBag<string>> result)
+        private async Task ResumeAfterProductDialog(IDialogContext context, IAwaitable<MessageBag<Product>> result)
         {
             var message = await result;
             switch (message.Type)
