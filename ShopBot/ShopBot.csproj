@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="MessageBag.cs" />
     <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\ProductQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AzureSearch.cs" />
     <Compile Include="Services\FluentSearchClient.cs" />
