@@ -70,7 +70,7 @@ namespace ShopBot.Dialogs
 
         private async Task ResumeAfterManageBasketDialog(IDialogContext context, IAwaitable<object> result)
         {
-            //TODO
+            await RootActions(context);
         }
 
         private async Task ResumeAfterCheckoutDialog(IDialogContext context, IAwaitable<object> result)

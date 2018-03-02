@@ -10,6 +10,7 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using ShopBot.CustomCards;
 using ShopBot.Models;
+using ShopBot.Repository;
 using ShopBot.Services;
 
 namespace ShopBot.Dialogs
@@ -96,6 +97,7 @@ namespace ShopBot.Dialogs
         private async Task ProductSelectionReceivedAsync(IDialogContext context, IAwaitable<Product> result)
         {
             var product = await result;
+            BotStateRepository.AddProductToBasket(context, product);
             context.Done(MessageBag.Of(product, MessageType.ProductOrder));
         }
 

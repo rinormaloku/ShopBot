@@ -135,5 +135,67 @@ namespace ShopBot.CustomCards
                 }
             };
         }
+
+        public static AdaptiveCard GetProductsBasketCard(IList<Product> products)
+        {
+            var productCards = new List<CardElement>
+            {
+                new TextBlock
+                {
+                    Text = $"You have **{products?.Count ?? 0}** products in your Basket."
+                }
+            };
+            productCards.AddRange((products ?? new List<Product>()).Select(TransformToProductCard).ToList<CardElement>());
+
+            return new AdaptiveCard
+            {
+                Body = new List<CardElement>
+                {
+                    new Container
+                    {
+                        Items = productCards
+                    }
+                }
+            };
+        }
+
+        private static ColumnSet TransformToProductCard(Product product)
+        {
+            return new ColumnSet
+            {
+                Separation = SeparationStyle.Strong,
+                Columns = new List<Column>
+                {
+                    new Column
+                    {
+                        Size = ColumnSize.Auto,
+                        Items = new List<CardElement>
+                        {
+                            new Image
+                            {
+                                Url = $"https://robohash.org/bob{product.Name + new Random().Next()}?size=75x75",
+                                Size = ImageSize.Small,
+                                Style = ImageStyle.Normal
+                            }
+                        }
+                    },
+                    new Column
+                    {
+                        Items = new List<CardElement>
+                        {
+                            new TextBlock
+                            {
+                                Text = product.Name
+                            },
+                            new TextBlock
+                            {
+                                Text = $"**${product.ListPrice}**",
+                                Wrap = true
+                            }
+                        }
+                    }
+                }
+            };
+        }
     }
 }
