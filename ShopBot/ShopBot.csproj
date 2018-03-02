@@ -58,6 +58,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Azure.CognitiveServices.SpellCheck, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\packages\Microsoft.Azure.CognitiveServices.SpellCheck.0.18.0-preview\lib\net452\Microsoft.Azure.CognitiveServices.SpellCheck.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Azure.Documents.Client, Version=1.20.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <HintPath>..\packages\Microsoft.Azure.DocumentDB.1.20.2\lib\net45\Microsoft.Azure.Documents.Client.dll</HintPath>
     </Reference>
@@ -187,6 +190,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\BotStateRepository.cs" />
     <Compile Include="Services\AzureSearch.cs" />
+    <Compile Include="Services\SpellCheckExt.cs" />
     <Compile Include="Services\FluentSearchClient.cs" />
   </ItemGroup>
   <ItemGroup>
