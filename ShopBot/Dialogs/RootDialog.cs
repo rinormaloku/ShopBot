@@ -1,44 +1,50 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Luis;
+using Microsoft.Bot.Builder.Luis.Models;
 using Microsoft.Bot.Connector;
-using System.Threading;
-using ShopBot.Dialogs;
 using ShopBot.Models;
 
 namespace ShopBot.Dialogs
 {
+    [LuisModel("00a372e0-f261-4947-90b3-5fd0329f8164", "ef653df99ee04a58a9f451c8ed519a37")]
     [Serializable]
-    public class RootDialog : IDialog<object>
+    public class RootDialog : LuisDialog<object>    
     {
-        public Task StartAsync(IDialogContext context)
+        private const string EntityProducts = "Products";
+        private const string EntityBasket = "Basket";
+        private const string EntityCheckout = "Checkout";
+
+        [LuisIntent("")]
+        [LuisIntent("None")]
+        [LuisIntent("Help")]
+        public async Task None(IDialogContext context, LuisResult result)
         {
-            context.Wait(MessageReceivedAsync);
-            return Task.CompletedTask;
+            await context.PostAsync("Welcome, how can we help you?");
+            await RootActions(context);
+
+            context.Wait(MessageReceived);
         }
-
-        private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        
+        [LuisIntent("SelectDialog")]
+        public async Task SelectDialog(IDialogContext context, IAwaitable<IMessageActivity> messageActivity, LuisResult result)
         {
-            var message = await result;
-
-            if (message.Text.Contains("products"))
+            var message = await messageActivity;
+            
+            if (result.TryFindEntity(EntityProducts, out var _))
             {
                 await context.Forward(new ProductDialog(), ResumeAfterProductDialog, message, CancellationToken.None);
             }
-            else if (message.Text.Contains("basket"))
+            else if (result.TryFindEntity(EntityBasket, out var _))
             {
                 await context.Forward(new ManageBasketDialog(), ResumeAfterManageBasketDialog, message,
                     CancellationToken.None);
             }
-            else if (message.Text.Contains("checkout"))
+            else if (result.TryFindEntity(EntityCheckout, out var _))
             {
                 await context.Forward(new CheckoutDialog(), ResumeAfterCheckoutDialog, message, CancellationToken.None);
-            }
-            else
-            {
-                await context.PostAsync("Welcome, how can we help you?");
-                await RootActions(context);
-                context.Wait(MessageReceivedAsync);
             }
         }
 
@@ -65,7 +71,7 @@ namespace ShopBot.Dialogs
             }
 
             await RootActions(context);
-            context.Wait(MessageReceivedAsync);
+            context.Wait(MessageReceived);
         }
 
         private async Task ResumeAfterManageBasketDialog(IDialogContext context, IAwaitable<object> result)
