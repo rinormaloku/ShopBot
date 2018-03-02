@@ -3,7 +3,8 @@ namespace ShopBot
     public enum MessageType
     {
         ProductOrder,
-        ProductRemoval
+        ProductRemoval,
+        ProductDialogCancelled
     }
 
     public static class MessageBag

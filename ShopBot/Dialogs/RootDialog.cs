@@ -59,6 +59,9 @@ namespace ShopBot.Dialogs
                 case MessageType.ProductRemoval:
                     await context.PostAsync($"The user removed the product {message.Content}");
                     break;
+                case MessageType.ProductDialogCancelled:
+                    await context.PostAsync("Okay where are we headed next");
+                    break;
             }
 
             await RootActions(context);
