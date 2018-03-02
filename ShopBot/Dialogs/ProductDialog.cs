@@ -34,7 +34,7 @@ namespace ShopBot.Dialogs
             Attachment attachment = new Attachment
             {
                 ContentType = AdaptiveCard.ContentType,
-                Content = CardFactory.GetProductActionsCard()
+                Content = CardFactory.GetProductActionsCard(BotStateRepository.GetAllProducts(context))
             };
 
             var reply = context.MakeMessage();
@@ -58,8 +58,7 @@ namespace ShopBot.Dialogs
                         await ProductOptionsReceivedAsync(context, query);
                         break;
                     case CardFactory.ProductRemoval:
-                        await context.PostAsync("Name of the product you want to remove:");
-                        context.Wait(PromptProductRemoval);
+                        await RemoveProductsReceived(context, message);
                         break;
                     case CardFactory.ProductDialogCancellation:
                         context.Done(new MessageBag<Product>(null, MessageType.ProductDialogCancelled));
@@ -101,10 +100,14 @@ namespace ShopBot.Dialogs
             context.Done(MessageBag.Of(product, MessageType.ProductOrder));
         }
 
-        private async Task PromptProductRemoval(IDialogContext context, IAwaitable<IMessageActivity> result)
+        private static async Task RemoveProductsReceived(IDialogContext context, IMessageActivity message)
         {
-            var message = await result;
-            context.Done(MessageBag.Of(message.Text, MessageType.ProductRemoval));
+            var removed = ProductRemover.Of(message.Value).Remove(context);
+            await context.PostAsync(removed.Any() ? 
+                "Items removed from basket: \n\n* " + string.Join(" \n\n* ", removed):
+                "No products removed");   
+            
+            context.Done(new MessageBag<Product>(null, MessageType.ProductRemoval));
         }
     }
 }

@@ -183,6 +183,7 @@
     <Compile Include="MessageBag.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductQuery.cs" />
+    <Compile Include="ProductRemoval.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\BotStateRepository.cs" />
     <Compile Include="Services\AzureSearch.cs" />

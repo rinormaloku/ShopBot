@@ -56,7 +56,8 @@ namespace ShopBot.Dialogs
                     await ShowBasketContentsCard(context);
                     break;
                 case ProductRemoval:
-                    //TODO
+                    await ShowProductRemovalCard(context);
+                    context.Wait(RemoveProductMessageRecievedAsync);
                     break;
                 case EmptyBasket:
                     //TODO
@@ -79,6 +80,32 @@ namespace ShopBot.Dialogs
 
             await context.PostAsync(reply, CancellationToken.None);
             context.Done("Basket contents viewed");
+        }
+        
+        private async Task ShowProductRemovalCard(IDialogContext context)
+        {
+            context.ConversationData.TryGetValue(BotStateRepository.ProductsInBasket, out IList<Product> products);
+            
+            Attachment attachment = new Attachment
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = CardFactory.DeleteProductsFromBasketCard(products)
+            };
+
+            var reply = context.MakeMessage();
+            reply.Attachments.Add(attachment);
+
+            await context.PostAsync(reply, CancellationToken.None);
+        }
+
+        private async Task RemoveProductMessageRecievedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        {
+            var message = await result;
+            var removed = ProductRemover.Of(message.Value).Remove(context);
+            await context.PostAsync(removed.Any() ? 
+                "Items removed from basket: \n\n* " + string.Join(" \n\n* ", removed):
+                "No products removed");
+            context.Done("Items deleted");
         }
     }
 }

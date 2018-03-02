@@ -12,7 +12,7 @@ namespace ShopBot.CustomCards
         public const string ProductRemoval = "ProductRemoval";
         public const string ProductDialogCancellation = "CancelProductDialog";
 
-        public static AdaptiveCard GetProductActionsCard()
+        public static AdaptiveCard GetProductActionsCard(IList<Product> products)
         {
             return new AdaptiveCard
             {
@@ -67,6 +67,11 @@ namespace ShopBot.CustomCards
                     {
                         Title = "Order Products",
                         Card = GetProductsSearchCard()
+                    },
+                    new ShowCardAction
+                    {
+                        Title = "Remove single products",
+                        Card = DeleteProductsFromBasketCard(products)
                     },
                     new SubmitAction
                     {
@@ -193,6 +198,55 @@ namespace ShopBot.CustomCards
                                 Wrap = true
                             }
                         }
+                    }
+                }
+            };
+        }
+        
+        public static AdaptiveCard DeleteProductsFromBasketCard(IList<Product> products)
+        {
+            var productCards = new List<CardElement>
+            {
+                new TextBlock
+                {
+                    Text = $"You have **{products.Count}** products in your Basket."
+                }
+            };
+            productCards.AddRange(products.Select(TransformToProductCardWithDeletion).ToList<CardElement>());
+            
+            return new AdaptiveCard
+            {
+                Body = new List<CardElement>
+                {
+                    new Container
+                    {
+                        Items = productCards
+                    }
+                },
+                Actions = new List<ActionBase>
+                {
+                    new SubmitAction
+                    {
+                        Title = "Delete",
+                        DataJson = $"{{ \"Type\": \"{ProductRemoval}\" }}"
+                    }
+                } 
+            };
+        }
+
+        private static Container TransformToProductCardWithDeletion(Product product)
+        {
+            return new Container
+            {
+                Separation = SeparationStyle.Strong,
+                Items = new List<CardElement>
+                {
+                    TransformToProductCard(product),
+                    new ToggleInput
+                    {
+                        Id = product.Name,
+                        Title = "Check to remove from basket",
+                        Value = product.Name
                     }
                 }
             };
